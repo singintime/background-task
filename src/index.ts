@@ -1,1 +1,1 @@
-export * from "./BackgroundTask";
+export * from "./BatchTask";

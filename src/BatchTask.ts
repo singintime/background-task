@@ -29,7 +29,7 @@ type Options = SingleOptions | ChunkOptions | IntervalOptions;
  * Returning false in the processing function stops the iteration, similarly to
  * what happens when using a `break` statement in a regular loop.
  */
-export class BackgroundTask<T> {
+export class BatchTask<T> {
   private canceled = false;
   private resolve = () => {};
   private reject = (_: Error) => {};

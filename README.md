@@ -1,7 +1,7 @@
-# background-task
+# batch-task
 
-Non-blocking iterative task, using the event loop to divide the iteration into
-smaller batches and schedule them for deferred execution.
+Performs iterative tasks in a non-blocking way, using the event loop to divide
+the iteration into smaller batches and schedule them for deferred execution.
 Particularly useful for low priority tasks made of simple and relatively fast
 operations, but applied over very large datasets.
 
@@ -30,7 +30,7 @@ what happens when using a `break` statement in a regular loop.
 ## Example code
 
 ```
-import {BackgroundTask} from "@singintime/background-task";
+import {BatchTask} from "@singintime/batch-task";
 
 // Generating the input list - a million random numbers ranging from 0 to 100
 const input: number[] = [];
@@ -55,7 +55,7 @@ const options = {budget: "iterations", amount: 100};
 // Process every iteration as a separate macrotask: {budget: "atomic"}
 
 // Create the non-blocking task
-const task = new BackgroundTask(input, process, {budget: "iterations", amount});
+const task = new BatchTask(input, process, {budget: "iterations", amount});
 
 // Do something after termination
 task.done
@@ -68,4 +68,4 @@ task.cancel();
 
 ## API documentation
 
-Available [here](https://singintime.github.io/background-task)
+Available [here](https://singintime.github.io/batch-task)
