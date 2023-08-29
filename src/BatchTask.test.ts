@@ -1,11 +1,11 @@
-import { BackgroundTask } from "./BackgroundTask";
+import { BatchTask } from "./BatchTask";
 
-describe("BackgroundTask", () => {
+describe("BatchTask", () => {
   jest.useFakeTimers();
   jest.spyOn(global, "setTimeout");
 
   it("creates", () => {
-    expect(new BackgroundTask([], () => {}, { budget: "atomic" })).toBeTruthy();
+    expect(new BatchTask([], () => {}, { budget: "atomic" })).toBeTruthy();
   });
 
   describe("with atomic budget", () => {
@@ -13,7 +13,7 @@ describe("BackgroundTask", () => {
     let callback: (value: number) => unknown;
     let options: { budget: "atomic" };
     let result: number[];
-    let task: BackgroundTask<number>;
+    let task: BatchTask<number>;
 
     beforeEach(() => {
       values = [1, 2, 3];
@@ -28,7 +28,7 @@ describe("BackgroundTask", () => {
     });
 
     it("applies the callback function to the input array", () => {
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       jest.runAllTimers();
 
@@ -36,7 +36,7 @@ describe("BackgroundTask", () => {
     });
 
     it("processes the input array items one by one", () => {
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       expect(result).toEqual([]);
 
@@ -53,7 +53,7 @@ describe("BackgroundTask", () => {
     it("resolves the done promise after processing the whole array", () => {
       const fn = jest.fn();
 
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       const promise = task.done.then(() => {
         expect(result).toEqual([2, 3, 4]);
@@ -65,7 +65,7 @@ describe("BackgroundTask", () => {
     });
 
     it("can be canceled before completion", () => {
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       task.done.catch((reason) => {
         expect(reason.message).toEqual("canceled");
@@ -86,7 +86,7 @@ describe("BackgroundTask", () => {
         return value !== 2;
       };
 
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       task.done.then(() => {
         expect(result).toEqual([2, 3]);
@@ -101,7 +101,7 @@ describe("BackgroundTask", () => {
     let callback: (value: number) => unknown;
     let options: { budget: "iterations"; amount: number };
     let result: number[];
-    let task: BackgroundTask<number>;
+    let task: BatchTask<number>;
 
     beforeEach(() => {
       values = [1, 2, 3, 4, 5];
@@ -111,7 +111,7 @@ describe("BackgroundTask", () => {
     });
 
     it("applies the callback function to the input array", () => {
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       jest.runAllTimers();
 
@@ -119,7 +119,7 @@ describe("BackgroundTask", () => {
     });
 
     it("processes the input array items in chunks", () => {
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       expect(result).toEqual([]);
 
@@ -131,7 +131,7 @@ describe("BackgroundTask", () => {
     });
 
     it("resolves the done promise after processing the whole array", () => {
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       const promise = task.done.then(() => {
         expect(result).toEqual([2, 3, 4, 5, 6]);
@@ -143,7 +143,7 @@ describe("BackgroundTask", () => {
     });
 
     it("can be canceled before completion", () => {
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       const promise = task.done.catch((reason) => {
         expect(reason.message).toEqual("canceled");
@@ -165,7 +165,7 @@ describe("BackgroundTask", () => {
         return value !== 2;
       };
 
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       const promise = task.done.then(() => {
         expect(result).toEqual([2, 3]);
@@ -182,7 +182,7 @@ describe("BackgroundTask", () => {
     let callback: (value: number) => unknown;
     let options: { budget: "milliseconds"; amount: number };
     let result: number[];
-    let task: BackgroundTask<number>;
+    let task: BatchTask<number>;
     let nowSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -197,7 +197,7 @@ describe("BackgroundTask", () => {
     });
 
     it("applies the callback function to the input array", () => {
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       jest.runAllTimers();
 
@@ -207,7 +207,7 @@ describe("BackgroundTask", () => {
     it("processes the input array items in intervals", () => {
       const logSpy = jest.spyOn(console, "log");
 
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       expect(result).toEqual([]);
 
@@ -219,7 +219,7 @@ describe("BackgroundTask", () => {
     });
 
     it("resolves the done promise after processing the whole array", () => {
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       const promise = task.done.then(() => {
         expect(result).toEqual([2, 3, 4, 5, 6]);
@@ -231,7 +231,7 @@ describe("BackgroundTask", () => {
     });
 
     it("can be canceled before completion", () => {
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       const promise = task.done.catch((reason) => {
         expect(reason.message).toEqual("canceled");
@@ -254,7 +254,7 @@ describe("BackgroundTask", () => {
         return value !== 2;
       };
 
-      task = new BackgroundTask(values, callback, options);
+      task = new BatchTask(values, callback, options);
 
       const promise = task.done.then(() => {
         expect(result).toEqual([2, 3]);

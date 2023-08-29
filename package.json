@@ -1,13 +1,15 @@
 {
-  "name": "@singintime/background-task",
+  "name": "@singintime/batch-task",
   "version": "0.1.0",
-  "description": "Makes iterative tasks non-blocking",
+  "description": "Performs iterative tasks in a non-blocking way",
   "types": "./lib/cjs/types/index.d.ts",
   "main": "./lib/cjs/index.js",
   "author": "Stefano Baldan <singintime@gmail.com>",
   "license": "ISC",
   "files": [
-    "./lib/**/*"
+    "lib",
+    "LICENSE",
+    "README.md"
   ],
   "exports": {
     ".": {
