@@ -31,6 +31,7 @@ type Options = SingleOptions | ChunkOptions | IntervalOptions;
  */
 export class BatchTask<T> {
   private canceled = false;
+  private completed = false;
   private resolve = () => {};
   private reject = (_: Error) => {};
 
@@ -62,6 +63,20 @@ export class BatchTask<T> {
   }
 
   /**
+   * Whether or not the task execution was canceled.
+   */
+  isCanceled() {
+    return this.canceled;
+  }
+
+  /**
+   * Whether or not the task has successfully terminated its execution..
+   */
+  isCompleted() {
+    return this.completed;
+  }
+
+  /**
    * Cancels the execution of this background task.
    */
   cancel(): void {
@@ -77,6 +92,7 @@ export class BatchTask<T> {
     const { values, callback } = this;
 
     if (index >= values.length || callback(values[index]) === false) {
+      this.completed = true;
       this.resolve();
       return false;
     }

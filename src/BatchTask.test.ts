@@ -265,4 +265,41 @@ describe("BatchTask", () => {
       return promise;
     });
   });
+
+  describe("isCanceled()", () => {
+    let task: BatchTask<never>;
+
+    beforeEach(() => {
+      task = new BatchTask([], () => {}, { budget: "atomic" });
+    });
+
+    it("returns false if the task is not canceled", () => {
+      expect(task.isCanceled()).toBe(false);
+    });
+
+    it("returns true if the task is canceled", () => {
+      task.done.catch(() => {});
+      task.cancel();
+
+      expect(task.isCanceled()).toBe(true);
+    });
+  });
+
+  describe("isCompleted()", () => {
+    let task: BatchTask<never>;
+
+    beforeEach(() => {
+      task = new BatchTask([], () => {}, { budget: "atomic" });
+    });
+
+    it("returns false if the task is not completed", () => {
+      expect(task.isCompleted()).toBe(false);
+    });
+
+    it("returns true if the task is completed", () => {
+      jest.runAllTimers();
+
+      expect(task.isCompleted()).toBe(true);
+    });
+  });
 });
