@@ -29,7 +29,7 @@
     "build:esm": "tsc -p ./tsconfig.esm.json && mv ./lib/esm/index.js ./lib/esm/index.mjs",
     "build:cjs": "tsc -p ./tsconfig.cjs.json",
     "prepack": "npm run build",
-    "test": "jest --ci --config ./jest.config.js",
+    "test": "jest --ci",
     "docs": "typedoc ./src/index.ts --tsconfig ./tsconfig.base.json"
   },
   "devDependencies": {
