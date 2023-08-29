@@ -30,7 +30,9 @@ jobs:
           with:
             node-version: 16
         - run: npm run docs
+        
   deploy:
+    needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
