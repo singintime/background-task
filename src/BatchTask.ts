@@ -1,18 +1,12 @@
-interface SingleOptions {
-  budget: "atomic";
-}
-
-interface ChunkOptions {
-  budget: "iterations";
+/**
+ * Configuration options for a batch task.
+ * The task can be divided into batches that either contain a fixed amount of
+ * iteration, or that take a fixed amount of time (in milliseconds) to complete.
+ */
+export interface BatchTaskOptions {
+  budget: "iterations" | "milliseconds";
   amount: number;
 }
-
-interface IntervalOptions {
-  budget: "milliseconds";
-  amount: number;
-}
-
-type Options = SingleOptions | ChunkOptions | IntervalOptions;
 
 /**
  * Non-blocking iterative task, using the event loop to divide the iteration
@@ -22,9 +16,8 @@ type Options = SingleOptions | ChunkOptions | IntervalOptions;
  * and an object describing the strategy used to divide the task into batches.
  *
  * The batching strategies are the following:
- * - atomic: each iteration is scheduled as a separate deferred macrotask,
  * - iterations: the batches contain a fixed amount of iterations,
- * - milliseconds: the batches take a fixed amount of time to be processed.
+ * - milliseconds: the batches take a fixed amount of time to complete.
  *
  * Returning false in the processing function stops the iteration, similarly to
  * what happens when using a `break` statement in a regular loop.
@@ -47,19 +40,21 @@ export class BatchTask<T> {
   constructor(
     private values: T[],
     private callback: (value: T) => unknown,
-    options: Options
+    options: BatchTaskOptions
   ) {
-    switch (options.budget) {
-      case "atomic":
-        setTimeout(() => this.processAtomic(0));
-        break;
-      case "iterations":
-        setTimeout(() => this.processIterations(0, options.amount));
-        break;
-      case "milliseconds":
-        setTimeout(() => this.processMilliseconds(0, options.amount));
-        break;
-    }
+    // Avoid unhandled promise rejection errors on canceled tasks
+    this.done.catch(() => {});
+
+    setTimeout(() => {
+      switch (options.budget) {
+        case "iterations":
+          this.processIterations(0, options.amount);
+          break;
+        case "milliseconds":
+          this.processMilliseconds(0, options.amount);
+          break;
+      }
+    });
   }
 
   /**
@@ -70,7 +65,7 @@ export class BatchTask<T> {
   }
 
   /**
-   * Whether or not the task has successfully terminated its execution..
+   * Whether or not the task has successfully terminated its execution.
    */
   isCompleted() {
     return this.completed;
@@ -98,20 +93,6 @@ export class BatchTask<T> {
     }
 
     return true;
-  }
-
-  /**
-   * Applies the processing function to the input values.
-   * Each iteration is scheduled as a separate macrotask.
-   */
-  private processAtomic(startIndex: number): void {
-    if (this.canceled || !this.processValue(startIndex)) {
-      return;
-    }
-
-    setTimeout(() => {
-      this.processAtomic(startIndex + 1);
-    });
   }
 
   /**

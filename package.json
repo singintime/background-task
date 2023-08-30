@@ -1,6 +1,6 @@
 {
   "name": "@singintime/batch-task",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Performs iterative tasks in a non-blocking way",
   "types": "./lib/cjs/types/index.d.ts",
   "main": "./lib/cjs/index.js",
@@ -8,6 +8,7 @@
   "license": "ISC",
   "files": [
     "lib",
+    "CHANGELOG.md",
     "LICENSE",
     "README.md"
   ],
