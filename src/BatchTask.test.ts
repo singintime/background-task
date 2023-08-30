@@ -5,95 +5,9 @@ describe("BatchTask", () => {
   jest.spyOn(global, "setTimeout");
 
   it("creates", () => {
-    expect(new BatchTask([], () => {}, { budget: "atomic" })).toBeTruthy();
-  });
-
-  describe("with atomic budget", () => {
-    let values: number[];
-    let callback: (value: number) => unknown;
-    let options: { budget: "atomic" };
-    let result: number[];
-    let task: BatchTask<number>;
-
-    beforeEach(() => {
-      values = [1, 2, 3];
-      callback = (value) => result.push(value + 1);
-      options = { budget: "atomic" };
-      result = [];
-    });
-
-    afterEach(() => {
-      jest.clearAllTimers();
-      expect.hasAssertions();
-    });
-
-    it("applies the callback function to the input array", () => {
-      task = new BatchTask(values, callback, options);
-
-      jest.runAllTimers();
-
-      expect(result).toEqual([2, 3, 4]);
-    });
-
-    it("processes the input array items one by one", () => {
-      task = new BatchTask(values, callback, options);
-
-      expect(result).toEqual([]);
-
-      jest.runOnlyPendingTimers();
-      expect(result).toEqual([2]);
-
-      jest.runOnlyPendingTimers();
-      expect(result).toEqual([2, 3]);
-
-      jest.runOnlyPendingTimers();
-      expect(result).toEqual([2, 3, 4]);
-    });
-
-    it("resolves the done promise after processing the whole array", () => {
-      const fn = jest.fn();
-
-      task = new BatchTask(values, callback, options);
-
-      const promise = task.done.then(() => {
-        expect(result).toEqual([2, 3, 4]);
-      });
-
-      jest.runAllTimers();
-
-      return promise;
-    });
-
-    it("can be canceled before completion", () => {
-      task = new BatchTask(values, callback, options);
-
-      task.done.catch((reason) => {
-        expect(reason.message).toEqual("canceled");
-        expect(result).toEqual([2, 3]);
-      });
-
-      jest.runOnlyPendingTimers();
-      jest.runOnlyPendingTimers();
-
-      task.cancel();
-
-      jest.runAllTimers();
-    });
-
-    it("resolves as soon as the callback returns false", () => {
-      callback = (value) => {
-        result.push(value + 1);
-        return value !== 2;
-      };
-
-      task = new BatchTask(values, callback, options);
-
-      task.done.then(() => {
-        expect(result).toEqual([2, 3]);
-      });
-
-      jest.runAllTimers();
-    });
+    expect(
+      new BatchTask([], () => {}, { budget: "iterations", amount: 1 })
+    ).toBeTruthy();
   });
 
   describe("with iterations budget", () => {
@@ -270,7 +184,7 @@ describe("BatchTask", () => {
     let task: BatchTask<never>;
 
     beforeEach(() => {
-      task = new BatchTask([], () => {}, { budget: "atomic" });
+      task = new BatchTask([], () => {}, { budget: "iterations", amount: 1 });
     });
 
     it("returns false if the task is not canceled", () => {
@@ -278,7 +192,6 @@ describe("BatchTask", () => {
     });
 
     it("returns true if the task is canceled", () => {
-      task.done.catch(() => {});
       task.cancel();
 
       expect(task.isCanceled()).toBe(true);
@@ -289,7 +202,7 @@ describe("BatchTask", () => {
     let task: BatchTask<never>;
 
     beforeEach(() => {
-      task = new BatchTask([], () => {}, { budget: "atomic" });
+      task = new BatchTask([], () => {}, { budget: "iterations", amount: 1 });
     });
 
     it("returns false if the task is not completed", () => {
